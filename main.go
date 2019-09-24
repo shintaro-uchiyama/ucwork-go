@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
@@ -110,6 +111,10 @@ func updateHandler(w http.ResponseWriter, r *http.Request) *appError {
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) *appError {
+	requestId := mux.Vars(r)["id"]
+	if requestId == "2" {
+		return appErrorFormat(errors.New("invalid reques id"), "invalid id:  %s", requestId)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	return nil
 }

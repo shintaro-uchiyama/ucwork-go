@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/shintaro123/ucwork-go/internal"
+	"github.com/shintaro123/ucwork-go/internal/model/endpoint"
+	"github.com/shintaro123/ucwork-go/internal/repository"
 	"log"
 	"net/http"
 	"os"
@@ -73,23 +76,46 @@ func listHandler(w http.ResponseWriter, r *http.Request) *appError {
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) *appError {
-	response, jsonError := json.Marshal(Members{
-		Member{
-			Name: "new name",
-		},
-	})
+	// json decode
+	decoder := json.NewDecoder(r.Body)
+	var memberRequest endpoint.MemberRequest
+	err := decoder.Decode(&memberRequest)
+	if err != nil {
+		return appErrorFormat(err, "decode error: %s", err)
+	}
+
+	// object convert
+	member, err := memberFromJson(&memberRequest)
+	if err != nil {
+		return appErrorFormat(err, "convert error: %s", err)
+	}
+
+	// save member to db
+	id, err := internal.DB.AddMember(member)
+	if err != nil {
+		return appErrorFormat(err, "add db error: %s", err)
+	}
+
+	// create response
+	response, jsonError := json.Marshal(member)
 	if jsonError != nil {
 		return appErrorFormat(jsonError, "%s", jsonError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Location", "/members/2")
-	w.WriteHeader(201)
 	_, writeError := w.Write(response)
 	if writeError != nil {
 		return appErrorFormat(writeError, "%s", writeError)
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Location", "/members/"+string(id))
+	w.WriteHeader(201)
 	return nil
+}
+
+func memberFromJson(memberRequest *endpoint.MemberRequest) (*repository.Member, error) {
+	member := &repository.Member{
+		Name: memberRequest.Name,
+	}
+	return member, nil
 }
 
 func updateHandler(w http.ResponseWriter, r *http.Request) *appError {

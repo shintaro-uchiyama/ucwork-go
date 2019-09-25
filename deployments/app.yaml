@@ -1,1 +1,6 @@
 runtime: go112
+main: ./cmd/ucwork
+beta_settings:
+  cloud_sql_instances: ucwork-ai-000002:asia-northeast1:ucwork
+
+

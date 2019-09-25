@@ -1,21 +1,15 @@
 # 概要
-とりあえずgoの最小環境
+Bookshelfチュートリアルを見ながらGCPサービスを一通り触ってみる  
 
-# 手順
-## プログラム作成
+# ローカル環境構築
+## ビルド&実行
 ```zsh
-$ go install github.com/ucwork-go/hello
-$ hello
+go build -o build/ucwork cmd/ucwork/main.go
+./build/ucwork
 ```
 
-## ライブラリ作成
+## URLへアクセス
 ```zsh
-$ go build github.com/ucwork-go/stringutil
-$ go install github.com/ucwork-go/hello
-$ hello
-```
-
-## テスト
-```zsh
-$ go test github.com/ucwork-go/stringutil
+curl http://localhost:8080/members                                                                                            ![add_datastore_connection#6]
+[{"Name":"Name1"},{"Name":"Name2"}]%
 ```

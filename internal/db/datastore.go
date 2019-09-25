@@ -37,3 +37,22 @@ func (db *datastoreDB) AddMember(member *repository.Member) (id int64, err error
 	}
 	return k.ID, nil
 }
+
+func (db *datastoreDB) ListMembers() ([]*repository.Member, error) {
+	ctx := context.Background()
+	members := make([]*repository.Member, 0)
+	q := datastore.NewQuery("Member").
+		Order("Name")
+
+	keys, err := db.client.GetAll(ctx, q, &members)
+
+	if err != nil {
+		return nil, fmt.Errorf("datastoredb: could not list books: %v", err)
+	}
+
+	for i, k := range keys {
+		members[i].ID = k.ID
+	}
+
+	return members, nil
+}

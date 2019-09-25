@@ -55,23 +55,21 @@ type Member struct {
 type Members []Member
 
 func listHandler(w http.ResponseWriter, r *http.Request) *appError {
-	response, jsonError := json.Marshal(Members{
-		Member{
-			Name: "Name1",
-		},
-		Member{
-			Name: "Name2",
-		},
-	})
+	members, err := internal.DB.ListMembers()
+	if err != nil {
+		return appErrorFormat(err, "%s", err)
+	}
+
+	response, jsonError := json.Marshal(members)
 	if jsonError != nil {
 		return appErrorFormat(jsonError, "%s", jsonError)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	_, writeError := w.Write(response)
 	if writeError != nil {
 		return appErrorFormat(writeError, "%s", writeError)
 	}
+	w.Header().Set("Content-Type", "application/json")
 	return nil
 }
 

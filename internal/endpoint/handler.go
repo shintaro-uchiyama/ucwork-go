@@ -16,6 +16,8 @@ func RegisterHandlers() *mux.Router {
 
 	router.Methods("GET").Path("/orders").Handler(appHandler(listOrdersHandler))
 	router.Methods("POST").Path("/orders").Handler(appHandler(createOrderHandler))
+
+	router.Methods("POST").Path("/images").Handler(appHandler(createImageHandler))
 	return router
 }
 

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"cloud.google.com/go/datastore"
+	"cloud.google.com/go/storage"
 	"context"
 	"github.com/shintaro123/ucwork-go/internal/db"
 	"github.com/shintaro123/ucwork-go/internal/repository"
@@ -12,6 +13,10 @@ import (
 var (
 	DB repository.MemberDatabase
 	DBSql repository.OrderDatabase
+
+	StorageBucket     *storage.BucketHandle
+	StorageBucketName string
+
 )
 
 func init(){
@@ -31,6 +36,10 @@ func init(){
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Cloud Storageの初期設定
+	StorageBucketName = "<your-storage-bucket>"
+	StorageBucket, err = configureStorage(StorageBucketName)
 }
 
 func configureDatastore(projectID string) (repository.MemberDatabase, error){
@@ -64,3 +73,13 @@ func configureCloudSQL(config cloudSQLConfig) (repository.OrderDatabase, error) 
 		Port:     3306,
 	})
 }
+
+func configureStorage(bucketID string) (*storage.BucketHandle, error) {
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return client.Bucket(bucketID), nil
+}
+
